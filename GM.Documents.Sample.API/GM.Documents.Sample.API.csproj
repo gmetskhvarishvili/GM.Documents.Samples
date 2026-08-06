@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <!--
+      This sample references the sibling source repo by project path so it builds against the current
+      code. Once the packages are published, swap these for:
+        <PackageReference Include="GM.Documents"        Version="1.0.0" />
+        <PackageReference Include="GM.Documents.Images"  Version="1.0.0" />
+    -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\GM.Documents\GM.Documents\GM.Documents.csproj" />
+        <ProjectReference Include="..\..\GM.Documents\GM.Documents.Images\GM.Documents.Images.csproj" />
+    </ItemGroup>
+
+</Project>
