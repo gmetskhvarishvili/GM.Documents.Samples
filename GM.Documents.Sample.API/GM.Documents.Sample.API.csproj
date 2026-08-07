@@ -11,10 +11,14 @@
       code. Once the packages are published, swap these for:
         <PackageReference Include="GM.Documents"        Version="1.0.0" />
         <PackageReference Include="GM.Documents.Images"  Version="1.0.0" />
+        <PackageReference Include="GM.Documents.Pdf"     Version="1.0.0" />
+        <PackageReference Include="GM.Documents.Excel"   Version="1.0.0" />
     -->
     <ItemGroup>
         <ProjectReference Include="..\..\GM.Documents\GM.Documents\GM.Documents.csproj" />
         <ProjectReference Include="..\..\GM.Documents\GM.Documents.Images\GM.Documents.Images.csproj" />
+        <ProjectReference Include="..\..\GM.Documents\GM.Documents.Pdf\GM.Documents.Pdf.csproj" />
+        <ProjectReference Include="..\..\GM.Documents\GM.Documents.Excel\GM.Documents.Excel.csproj" />
     </ItemGroup>
 
 </Project>

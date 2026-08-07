@@ -3,8 +3,15 @@
 Runnable usage for [GM.Documents](https://github.com/gmetskhvarishvili/GM.Documents) — the document
 processing library for the `GM.*` ecosystem.
 
-This first sample focuses on **GM.Documents.Images**: the KYC document/liveness image normalization
-that sits between a raw upload and persistence.
+The sample covers the whole library:
+
+- **GM.Documents.Images** — the KYC document/liveness image normalization that sits between a raw
+  upload and persistence (the focus below).
+- **GM.Documents.Pdf** — `GET /kyc/report.pdf` generates a KYC verification report (QuestPDF).
+- **GM.Documents.Excel** — `GET /reports/transactions.xlsx` generates a tabular export (ClosedXML).
+
+The PDF report is built from the shared, format-neutral `DocumentContent` model — the same content
+could be handed to `GM.Documents.Word` to emit a `.docx` instead.
 
 ## Run it
 

@@ -1,5 +1,8 @@
 using GM.Documents;
+using GM.Documents.Content;
+using GM.Documents.Excel;
 using GM.Documents.Images;
+using GM.Documents.Pdf;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,11 +16,13 @@ builder.Services
         o.MaxWidth = 2000;
         o.MaxHeight = 2000;
         o.ResizeMode = ResizeMode.Fit;
-        o.TargetFormat = DocumentFormat.Jpeg;
+        o.TargetFormat = DocFormat.Jpeg;
         o.Quality = 80;
         o.StripMetadata = true;                       // EXIF + GPS removed (default; explicit here for the demo)
         o.MaxOutputSizeInBytes = 2 * 1024 * 1024;     // step quality down to keep stored photos ≤ 2 MB
-    });
+    })
+    .AddPdf()      // PDF generation (QuestPDF) + extraction (PdfPig)
+    .AddExcel();   // XLSX read/write (ClosedXML)
 
 var app = builder.Build();
 
@@ -28,9 +33,51 @@ app.MapGet("/", () => Results.Ok(new
     {
         "POST /kyc/documents          multipart/form-data, field 'file' → JSON report (before/after, GPS stripped)",
         "POST /kyc/documents/download multipart/form-data, field 'file' → the normalized JPEG bytes",
+        "GET  /kyc/report.pdf         → a generated KYC verification report (PDF, QuestPDF)",
+        "GET  /reports/transactions.xlsx → a generated transactions export (XLSX, ClosedXML)",
     },
     pipeline = "orient → resize (≤2000px) → flatten → strip EXIF/GPS → JPEG q80 (≤2 MB)",
 }));
+
+// ---- Generation: the shared DocumentContent model rendered to PDF ------------------------------
+// Same DocumentContent could be handed to the Word generator to emit a .docx instead.
+app.MapGet("/kyc/report.pdf", async (IDocumentGenerator<PdfDocumentDefinition> pdf, CancellationToken ct) =>
+{
+    var content = DocumentContent.Create("KYC Verification Report", author: "GM")
+        .Heading("Identity Verification Report")
+        .Paragraph($"Generated on {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC.")
+        .Spacer()
+        .Table(
+            ["Field", "Value"],
+            [
+                ["Applicant", "Ada Lovelace"],
+                ["Reference", "KYC-2026-000123"],
+                ["Status", "Approved"],
+            ])
+        .Build();
+
+    using var result = await pdf.GenerateAsync(new PdfDocumentDefinition { Content = content }, ct);
+    var bytes = await result.ToByteArrayAsync(ct);
+    return Results.File(bytes, result.ContentType, result.FileName);
+});
+
+// ---- Generation: a tabular export to XLSX ------------------------------------------------------
+app.MapGet("/reports/transactions.xlsx", async (IDocumentGenerator<SpreadsheetDefinition> excel, CancellationToken ct) =>
+{
+    var definition = SpreadsheetDefinition.SingleSheet(
+        "Transactions",
+        headers: ["Id", "Account", "Amount", "Date"],
+        rows:
+        [
+            [1001, "acc-123", 42.50, new DateOnly(2026, 8, 7)],
+            [1002, "acc-456", 99.00, new DateOnly(2026, 8, 8)],
+            [1003, "acc-123", 12.25, new DateOnly(2026, 8, 9)],
+        ]);
+
+    using var result = await excel.GenerateAsync(definition, ct);
+    var bytes = await result.ToByteArrayAsync(ct);
+    return Results.File(bytes, result.ContentType, result.FileName);
+});
 
 // ---- The integration point ---------------------------------------------------------------------
 // Raw upload → GM.Documents normalizes → (in production) GM.FileStorage persists. This endpoint
