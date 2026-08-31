@@ -59,6 +59,6 @@ dotnet test
 a JPEG carrying real GPS coordinates, posts it, and asserts the response is a capped JPEG whose bytes
 contain **no EXIF profile** — proving location data can't leak through to storage.
 
-> The sample references the sibling `GM.Documents` source repo by project path so it builds against
-> current code. Once the packages are published, swap the `ProjectReference`s in
-> `GM.Documents.Sample.API.csproj` for `PackageReference`s.
+> The sample references the published `GM.Documents*` NuGet packages (see
+> `GM.Documents.Sample.API.csproj`). For local development against the sibling source repo instead,
+> use the `feat/documents-sample` branch's `ProjectReference` form.

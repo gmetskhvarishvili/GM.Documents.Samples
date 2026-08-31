@@ -13,10 +13,10 @@
       branch instead.
     -->
     <ItemGroup>
-        <PackageReference Include="GM.Documents" Version="1.0.0" />
-        <PackageReference Include="GM.Documents.Images" Version="1.0.0" />
-        <PackageReference Include="GM.Documents.Pdf" Version="1.0.0" />
-        <PackageReference Include="GM.Documents.Excel" Version="1.0.0" />
+        <PackageReference Include="GM.Documents" Version="1.0.1" />
+        <PackageReference Include="GM.Documents.Images" Version="1.0.1" />
+        <PackageReference Include="GM.Documents.Pdf" Version="1.0.1" />
+        <PackageReference Include="GM.Documents.Excel" Version="1.0.1" />
     </ItemGroup>
 
 </Project>

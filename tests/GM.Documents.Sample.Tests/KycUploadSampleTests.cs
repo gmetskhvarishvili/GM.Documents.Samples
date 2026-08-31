@@ -54,7 +54,7 @@ public class KycUploadSampleTests(WebApplicationFactory<Program> factory)
 
         var bytes = await response.Content.ReadAsByteArrayAsync();
         using var ms = new MemoryStream(bytes);
-        var info = Image.Identify(ms);
+        var info = await Image.IdentifyAsync(ms);
 
         // The stored image carries no EXIF at all — so no GPS could possibly leak.
         Assert.Null(info.Metadata.ExifProfile);
