@@ -26,16 +26,19 @@ builder.Services
 
 var app = builder.Build();
 
+// Hoisted so the route delegate (invoked per request) doesn't reallocate this array each time.
+string[] tryItEndpoints =
+[
+    "POST /kyc/documents          multipart/form-data, field 'file' → JSON report (before/after, GPS stripped)",
+    "POST /kyc/documents/download multipart/form-data, field 'file' → the normalized JPEG bytes",
+    "GET  /kyc/report.pdf         → a generated KYC verification report (PDF, QuestPDF)",
+    "GET  /reports/transactions.xlsx → a generated transactions export (XLSX, ClosedXML)",
+];
+
 app.MapGet("/", () => Results.Ok(new
 {
     message = "GM.Documents sample — KYC document/liveness image normalization",
-    try_it = new[]
-    {
-        "POST /kyc/documents          multipart/form-data, field 'file' → JSON report (before/after, GPS stripped)",
-        "POST /kyc/documents/download multipart/form-data, field 'file' → the normalized JPEG bytes",
-        "GET  /kyc/report.pdf         → a generated KYC verification report (PDF, QuestPDF)",
-        "GET  /reports/transactions.xlsx → a generated transactions export (XLSX, ClosedXML)",
-    },
+    try_it = tryItEndpoints,
     pipeline = "orient → resize (≤2000px) → flatten → strip EXIF/GPS → JPEG q80 (≤2 MB)",
 }));
 
@@ -98,10 +101,8 @@ app.MapPost("/kyc/documents", async (IFormFile file, IImageProcessor images, Can
     var source = DocumentSource.From(upload, file.FileName, file.ContentType);
     await using var result = await images.NormalizeAsync(source, ct);
 
-    // 3. Persist. In production:
-    //    var stored = await storage.UploadAsync(
-    //        new FileUploadRequest(result.Content, result.FileName, result.ContentType), ct);
-    //    return Results.Ok(new { key = stored.Key });
+    // 3. Persist. In production, hand `result` (content, file name, content type) to
+    //    GM.FileStorage's upload API and return the storage key instead of the report below.
 
     return Results.Ok(new
     {
@@ -143,7 +144,12 @@ app.MapPost("/kyc/documents/download", async (IFormFile file, IImageProcessor im
     return Results.File(bytes, result.ContentType, result.FileName);
 }).DisableAntiforgery();
 
-app.Run();
+await app.RunAsync();
 
 // Exposed so the test project can spin the app up with WebApplicationFactory.
-public partial class Program;
+public partial class Program
+{
+    protected Program()
+    {
+    }
+}
