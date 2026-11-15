@@ -47,6 +47,8 @@ inspect it.
 - The **upload → normalize → persist** boundary: the `DocumentResult` stream is drop-in compatible
   with `GM.FileStorage.FileUploadRequest(content, fileName, contentType)`. The hand-off is shown in a
   comment — this sample doesn't reference GM.FileStorage, demonstrating the packages aren't coupled.
+- Uploads must be **JPEG, PNG or WebP**. Since GM.Documents.Images 1.0.2, anything else (TIFF, GIF,
+  BMP, ...) is rejected with a `DocumentProcessingException` before decoding.
 - `InspectAsync` reading upload metadata (dimensions, GPS presence) **before** committing to a decode.
 
 ## Tests
